@@ -1,7 +1,9 @@
 # Resets GitHub's 60-day scheduler-inactivity timer for this fork's own
 # maintenance workflows. Calling the enable endpoint on an enabled workflow
-# is a documented no-op that resets the timer (no ghost commits needed).
+# is a community-verified no-op that resets the timer (no ghost commits
+# needed; NOT in official docs - if schedules die unexpectedly, re-check).
 # Touches ONLY fork-maintenance workflows, never upstream CI.
+# Intentional manual disables (disabled_manually) are preserved.
 name: Keep fork workflows enabled
 
 on:
@@ -21,6 +23,27 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          summary="${GITHUB_STEP_SUMMARY:?}"
+          {
+            echo "### Workflow keepalive"
+            echo ""
+            echo "| Workflow | Result |"
+            echo "|---|---|"
+          } >> "${summary}"
+          rc=0
           for wf in sync-fork.yml keepalive.yml; do
-            gh api -X PUT "repos/${{ github.repository }}/actions/workflows/${wf}/enable" || true
+            if ! state="$(gh api "repos/${{ github.repository }}/actions/workflows/${wf}" --jq '.state')"; then
+              echo "| ${wf} | lookup FAILED |" >> "${summary}"
+              rc=1
+              continue
+            fi
+            if [ "${state}" = "disabled_manually" ]; then
+              echo "| ${wf} | skipped (disabled manually) |" >> "${summary}"
+            elif gh api -X PUT "repos/${{ github.repository }}/actions/workflows/${wf}/enable"; then
+              echo "| ${wf} | timer reset / enabled (was: ${state}) |" >> "${summary}"
+            else
+              echo "| ${wf} | enable FAILED (was: ${state}) |" >> "${summary}"
+              rc=1
+            fi
           done
+          exit "${rc}"
