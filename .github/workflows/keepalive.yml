@@ -1,0 +1,26 @@
+# Resets GitHub's 60-day scheduler-inactivity timer for this fork's own
+# maintenance workflows. Calling the enable endpoint on an enabled workflow
+# is a documented no-op that resets the timer (no ghost commits needed).
+# Touches ONLY fork-maintenance workflows, never upstream CI.
+name: Keep fork workflows enabled
+
+on:
+  schedule:
+    - cron: "53 3 1 * *" # 1st of month, 03:53 UTC
+  workflow_dispatch: {}
+
+permissions:
+  actions: write
+
+jobs:
+  keepalive:
+    if: github.event.repository.fork == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Re-enable fork maintenance workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for wf in sync-fork.yml keepalive.yml; do
+            gh api -X PUT "repos/${{ github.repository }}/actions/workflows/${wf}/enable" || true
+          done

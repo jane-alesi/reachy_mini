@@ -1,0 +1,23 @@
+# Fork maintenance: keep main in sync with pollen-robotics/reachy_mini.
+# GitHub disables scheduled workflows in forks by default and after 60 days
+# of repo inactivity - keepalive.yml re-enables them monthly.
+# Manual fallback: gh repo sync jane-alesi/reachy_mini -b main
+name: Sync fork with upstream
+
+on:
+  schedule:
+    - cron: "17 4 * * 1" # Mondays 04:17 UTC, off-peak
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.event.repository.fork == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync main from upstream
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh repo sync "${{ github.repository }}" -b main
