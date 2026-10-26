@@ -10,7 +10,7 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "aiohttp>=3.14.0",
+    "aiohttp>=3.14.4",
     "asgiref",
     # 2026.10.19 distrusts the compromised eMudhra intermediates (CVE-2026-111943).
     "certifi>=2026.10.19",
