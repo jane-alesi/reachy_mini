@@ -71,7 +71,7 @@ examples = [
 mujoco = ["mujoco==3.3.0"]
 placo_kinematics = [
     "placo==0.9.14; sys_platform != 'win32'",
-    "tornado>=6.5.5; sys_platform != 'win32'", # security floor for meshcat transitive dependency
+    "tornado>=6.6; sys_platform != 'win32'", # security floor for meshcat transitive dependency
 ]
 rerun = ["rerun-sdk>=0.29.0,<=0.31.3"]
 wireless-version = [
