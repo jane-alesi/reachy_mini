@@ -37,7 +37,7 @@ dependencies = [
     "pycaw>=20240210; sys_platform == 'win32'",
     "pydantic>=2.12.5,<3.0.0",
     "pyserial",
-    "python-multipart>=0.0.27",
+    "python-multipart>=0.0.31",
     "pyusb>=1.2.1",
     "pyyaml>=6.0",
     "questionary",
